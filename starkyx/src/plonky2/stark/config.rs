@@ -107,3 +107,22 @@ impl CurtaConfig<2> for CurtaPoseidonGoldilocksConfig {
 }
 
 pub type PoseidonGoldilocksStarkConfig = StarkyConfig<CurtaPoseidonGoldilocksConfig, 2>;
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+pub struct GenericCombinedConfig<const D: usize, C: GenericConfig<D>>(core::marker::PhantomData<C>);
+impl<const D: usize, C: GenericConfig<D>> CurtaConfig<D> for GenericCombinedConfig<D, C>
+where
+    <C as plonky2::plonk::config::GenericConfig<D>>::Hasher:
+        plonky2::plonk::config::AlgebraicHasher<<C as plonky2::plonk::config::GenericConfig<D>>::F>,
+    C: 'static,
+{
+    type F = C::F;
+
+    type FE = C::FE;
+
+    type Hasher = C::Hasher;
+
+    type InnerHasher = C::InnerHasher;
+
+    type GenericConfig = C;
+}
