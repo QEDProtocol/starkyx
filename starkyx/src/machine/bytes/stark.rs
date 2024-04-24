@@ -454,6 +454,23 @@ where
         )
     }
 
+    pub fn add_virtual_proof_target(
+        &self,
+        builder: &mut CircuitBuilder<L::Field, D>,
+    ) -> ByteStarkProofTarget<D> {
+        let main_proof = add_virtual_air_proof(builder, &self.stark, &self.config);
+        let lookup_proof = add_virtual_air_proof(builder, &self.lookup_stark, &self.lookup_config);
+
+        let num_global_values = self.stark.air.num_global_values;
+        let global_values = builder.add_virtual_targets(num_global_values);
+
+        ByteStarkProofTarget {
+            main_proof,
+            lookup_proof,
+            global_values,
+        }
+    }
+
     pub fn get_challenges_target(
         &self,
         builder: &mut CircuitBuilder<L::Field, D>,
@@ -556,6 +573,10 @@ where
         set_air_proof_target(witness, lookup_proof, &proof.lookup_proof);
 
         witness.set_target_arr(global_values, &proof.global_values);
+    }
+
+    pub fn num_public_inputs(&self) -> usize {
+        self.stark.air.num_public_values
     }
 }
 
